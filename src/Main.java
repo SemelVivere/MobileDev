@@ -1,15 +1,88 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.*;;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        Scanner scanner = new Scanner(System.in); // object+vvod keyboard
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        while (true) {
+            System.out.println("\nВыберите задачу (1-5) или 0 для выхода:");
+            String choice = scanner.nextLine(); // Что ввёл пользователь, 0 выход
+
+            if (choice.equals("0")) {
+                System.out.println("Выход");
+                break; // Выход из бесконечного цикла)
+            }
+
+            try {
+                // Выбор задачи от 1 до 5
+                switch (choice) {
+                    case "1": task1(scanner); break;
+                    //case "2": task2(scanner); break;
+                    //case "3": task3(scanner); break;
+                    //case "4": task4(scanner); break;
+                    //case "5": task5(scanner); break;
+                    default: System.out.println("Нет такой задачи"); //Tckb gjkmpjdfntkm dsitk pf ds,jh 1-5
+                }
+            } catch (Exception e) {
+                // Если внутри задач произошла ошибка, программа не падает, а выводит ошибки сюда
+                System.out.println("Ошибка: " + e.getMessage());
+            }
+        }
+        scanner.close(); // Закрываем сканер, чтобы не было утечек памяти
+    }
+
+
+// Задача 1
+public static void task1(Scanner sc) {
+    System.out.println("--- Задача 1 ---");
+    System.out.print("Введите количество строк: ");
+    int rows = Integer.parseInt(sc.nextLine());
+    System.out.print("Введите количество столбцов: ");
+    int cols = Integer.parseInt(sc.nextLine());
+
+    int[][] matrix = new int[rows][cols]; // Создание двумерного массива(таблица)
+    System.out.println("Введите трехзначные числа (по одному в строке):");
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int num = Integer.parseInt(sc.nextLine());
+            if (num < 100 || num > 999) { // Проверка на трехзначность
+                throw new IllegalArgumentException("Число должно быть трехзначным!");
+            }
+            matrix[i][j] = num; // Помещаем число в ячейку таблицы
         }
     }
+
+    // Массив-флажок для цифр 0-9.
+    // По умолчанию везде false. Если цифра встретилась, ставим true.
+    boolean[] hasDigit = new boolean[10];
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int num = matrix[i][j];
+            // Разбираем число на цифры
+            while (num > 0) {
+                int digit = num % 10; // Остаток от деления на 10 - это последняя цифра
+                hasDigit[digit] = true; // Запоминаем, что такая цифра была
+                num = num / 10; // Деление на 10, чтобы отбросить последнюю цифру
+            }
+        }
+    }
+
+    // Считаем, сколько ячеек стали true
+    int count = 0;
+    for (int i = 0; i < 10; i++) {
+        if (hasDigit[i]) count++;
+    }
+
+    System.out.println("Массив:");
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            System.out.print(matrix[i][j] + " ");
+        }
+        System.out.println(); // Перенос строки для красоты
+    }
+    System.out.println("Различных цифр: " + count);
+}
+//Добавить выход
 }
