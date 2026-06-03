@@ -18,7 +18,7 @@ public class Main {
                 switch (choice) {
                     case "1": task1(scanner); break;
                     case "2": task2(scanner); break;
-                    //case "3": task3(scanner); break;
+                    case "3": task3(scanner); break;
                     //case "4": task4(scanner); break;
                     //case "5": task5(scanner); break;
                     default: System.out.println("Нет такой задачи"); //Tckb gjkmpjdfntkm dsitk pf ds,jh 1-5
@@ -117,5 +117,61 @@ public static void task2(Scanner sc) {
     }
 }
 
-//Добавить выход
+
+//Задание 3
+public static void task3(Scanner sc) {
+    System.out.println("--- Задача 3 ---");
+    String alphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+    int[] table = {30, 27, 8, 20, 10, 33, 25, 12, 19, 14, 7, 28, 9, 23, 6, 29, 3, 16, 15, 11,
+            26, 5, 21, 13, 4, 18, 22, 1, 31, 32, 24, 2, 17};
+
+    System.out.print("Введите ключевое слово: ");
+    String key = sc.nextLine().toUpperCase(); // Меняем регистр
+    System.out.print("Введите текст: ");
+    String text = sc.nextLine().toUpperCase();
+
+    String result = ""; // Сюда зашифрованный текст
+
+    for (int i = 0; i < text.length(); i++) {
+        char textChar = text.charAt(i); // Берем i-ю букву из текста
+        // Берем i-ю букву из ключа. Остаток от деления (%) зацикливает ключ
+        char keyChar = key.charAt(i % key.length());
+
+        int textIndex = alphabet.indexOf(textChar); // Ищем букву текста в алфавите
+
+        // Если символ не буква (например, пробел), просто добавляем его как есть
+        if (textIndex == -1) {
+            result += textChar;
+            continue; // Переходим к следующей букве
+        }
+
+        int keyIndex = alphabet.indexOf(keyChar);
+
+        int textNum = table[textIndex]; // Номер буквы текста из таблицы
+        int keyNum = table[keyIndex];   // Номер буквы ключа из таблицы
+
+        int newNum = textNum + keyNum;
+        if (newNum > 33) {
+            newNum -= 33; // Если вышли за пределы 33, возвращаемся в начало
+        }
+
+        // Ищем в таблице букву, у которой есть этот новый номер
+        int newIndex = -1;
+        for (int j = 0; j < table.length; j++) {
+            if (table[j] == newNum) {
+                newIndex = j;
+                break;
+            }
+        }
+
+        result += alphabet.charAt(newIndex); // Добавляем зашифрованную букву
+    }
+    System.out.println("Результат: " + result);
+}
+
+//Задача 4
+
+
+
+//Добавить выход для выбора таски
 }
