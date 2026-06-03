@@ -1,24 +1,140 @@
 package com.example.mobiledev_bullscows;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private GameLogic gameLogic;
+    private int moveCount;
+
+    private EditText etGuess;
+    private TextView tvHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // Вызов элементов по id из xml
+        etGuess = findViewById(R.id.etGuess);
+        tvHistory = findViewById(R.id.tvHistory);
+        Button btnCheck = findViewById(R.id.btnCheck);
+
+        // Запуск новой игры
+        startNewGame();
+
+        // При клике на кнопку — проверка коров быков
+        btnCheck.setOnClickListener(v -> checkUserGuess());
+    }
+    //Обращение к GameLogic (новое число + новый счётчик ходов)
+    private void startNewGame() {
+        gameLogic = new GameLogic();
+        moveCount = 0;
+        etGuess.setText("");
+        tvHistory.setText("История:\n");
+    }
+
+    private void checkUserGuess() {
+        String guess = etGuess.getText().toString();
+
+        // Проверка: ровно 4 символа
+        if (guess.length() != 4) {
+            Toast.makeText(this, "Введите ровно 4 цифры!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Проверка: цифры не повторяются
+        if (!hasUniqueDigits(guess)) {
+            Toast.makeText(this, "Цифры не должны повторяться!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Считаем ход
+        moveCount++;
+
+        // Спрашиваем у GameLogic результат
+        int[] result = gameLogic.checkGuess(guess);
+        int bulls = result[0];
+        int cows = result[1];
+
+        // Дописываем строчку в историю
+        String line = "Ход " + moveCount + ": " + guess
+                + " -> Быков: " + bulls + ", Коров: " + cows + "\n";
+        tvHistory.append(line);
+
+        // Очищаем поле для следующей попытки
+        etGuess.setText("");
+
+        // Если угадали всё — победа
+        if (bulls == 4) {
+            Toast.makeText(this, "Угадали за " + moveCount + " ходов!", Toast.LENGTH_LONG).show();
+            StatsHelper.saveStat(this, moveCount);
+            // Автоматически начинаем заново через 10сек
+            etGuess.postDelayed(this::startNewGame, 10000);
+        }
+    }
+
+    // Проверка, что все 4 цифры разные
+    private boolean hasUniqueDigits(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            for (int j = i + 1; j < str.length(); j++) {
+                if (str.charAt(i) == str.charAt(j)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // === Меню ===
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_stats) {
+            showStats();
+            return true;
+        } else if (item.getItemId() == R.id.action_new_game) {
+            startNewGame();
+            Toast.makeText(this, "Новая игра начата", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showStats() {
+        List<String> stats = StatsHelper.getStats(this);
+
+        if (stats.isEmpty()) {
+            Toast.makeText(this, "Статистика пуста", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Собираем все записи в один текст
+        StringBuilder sb = new StringBuilder();
+        for (String record : stats) {
+            sb.append(record).append("\n");
+        }
+
+        // Показываем в простом диалоге
+        new AlertDialog.Builder(this)
+                .setTitle("История игр")
+                .setMessage(sb.toString())
+                .setPositiveButton("OK", null)
+                .show();
     }
 }
