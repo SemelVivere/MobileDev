@@ -17,7 +17,7 @@ public class Main {
                 // Выбор задачи от 1 до 5
                 switch (choice) {
                     case "1": task1(scanner); break;
-                    //case "2": task2(scanner); break;
+                    case "2": task2(scanner); break;
                     //case "3": task3(scanner); break;
                     //case "4": task4(scanner); break;
                     //case "5": task5(scanner); break;
@@ -84,5 +84,38 @@ public static void task1(Scanner sc) {
     }
     System.out.println("Различных цифр: " + count);
 }
+
+//Задание 2
+public static void task2(Scanner sc) {
+    System.out.println("--- Задача 2 ---");
+    int[][] matrix = new int[5][5];
+    System.out.println("Введите матрицу 5x5 (по 5 чисел в строке через пробел):");
+
+    for (int i = 0; i < 5; i++) {
+        String[] parts = sc.nextLine().split(" "); // Разбиваем строку по пробелам
+        for (int j = 0; j < 5; j++) {
+            matrix[i][j] = Integer.parseInt(parts[j]);
+        }
+    }
+
+    boolean isSymmetric = true; // Предполагаем что матрица симметрична
+
+    for (int i = 0; i < 5; i++) {
+        // Для корректного сравнивания j начинается с i + 1, так проверка над главной диагональю
+        for (int j = i + 1; j < 5; j++) {
+            if (matrix[i][j] != matrix[j][i]) {
+                isSymmetric = false; // Нашли несовпадение
+                break; // Выходим из цикла, дальше проверять нет смысла
+            }
+        }
+    }
+
+    if (isSymmetric) {
+        System.out.println("Матрица симметрична");
+    } else {
+        System.out.println("Матрица не симметрична");
+    }
+}
+
 //Добавить выход
 }
