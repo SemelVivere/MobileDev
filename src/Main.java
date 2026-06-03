@@ -19,8 +19,8 @@ public class Main {
                     case "1": task1(scanner); break;
                     case "2": task2(scanner); break;
                     case "3": task3(scanner); break;
-                    //case "4": task4(scanner); break;
-                    //case "5": task5(scanner); break;
+                    //case "4": task4(scanner); break; Не понял реализацию
+                    case "5": task5(scanner); break;
                     default: System.out.println("Нет такой задачи"); //Tckb gjkmpjdfntkm dsitk pf ds,jh 1-5
                 }
             } catch (Exception e) {
@@ -169,8 +169,44 @@ public static void task3(Scanner sc) {
     System.out.println("Результат: " + result);
 }
 
-//Задача 4
+//Задача 4 -
+//
+// Задача 5
 
+    public static void task5(Scanner sc) {
+        System.out.println("--- Задача 5 ---");
+        System.out.print("Введите слова через пробел: ");
+        String[] words = sc.nextLine().split(" ");
+
+        // Словарь: ключ - отсортированные буквы, значение - список слов
+        HashMap<String, ArrayList<String>> groups = new HashMap<>();
+
+        for (String word : words) {
+            if (word.isEmpty()) continue;
+
+            // Превращаем слово в массив букв, сортируем его и собираем обратно в строку
+            char[] chars = word.toLowerCase().toCharArray();
+            Arrays.sort(chars);
+            String sortedWord = new String(chars); // Например, "eat" и "tea" оба станут "aet"
+
+            // Проверяем, есть ли уже такой ключ в словаре
+            if (groups.containsKey(sortedWord)) {
+                // Если есть, достаем список и добавляем слово в него
+                groups.get(sortedWord).add(word);
+            } else {
+                // Если нет, создаем новый список, кладем туда слово и сохраняем в словарь
+                ArrayList<String> newList = new ArrayList<>();
+                newList.add(word);
+                groups.put(sortedWord, newList);
+            }
+        }
+
+        System.out.println("Группы:");
+        // Проходим по всем значениям (спискам) в словаре и печатаем их
+        for (ArrayList<String> group : groups.values()) {
+            System.out.println(group);
+        }
+    }
 
 
 //Добавить выход для выбора таски
