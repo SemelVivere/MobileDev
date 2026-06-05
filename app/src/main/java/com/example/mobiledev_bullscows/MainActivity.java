@@ -1,5 +1,6 @@
 package com.example.mobiledev_bullscows;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,9 @@ public class MainActivity extends AppCompatActivity {
     private GameLogic gameLogic;
     private int moveCount;
 
+    //Добавление новой переменной( карточка игры)
+    private GameRecord currentGame;
+
     private EditText etGuess;
     private TextView tvHistory;
 
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         tvHistory = findViewById(R.id.tvHistory);
         Button btnCheck = findViewById(R.id.btnCheck);
 
-        // Запуск новой игры
+        //Запуск новой игры
         startNewGame();
 
         // При клике на кнопку — проверка коров быков
@@ -38,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
     //Обращение к GameLogic (новое число + новый счётчик ходов)
     private void startNewGame() {
         gameLogic = new GameLogic();
-        moveCount = 0;
+        currentGame = StatsHelper.createNewGame(gameLogic.getSecretNumber()); //Создание записи с информацией по текущей игре, дата + загаданное число
+        //moveCount = 0;
         etGuess.setText("");
         tvHistory.setText("История:\n");
     }
@@ -66,18 +71,21 @@ public class MainActivity extends AppCompatActivity {
         int bulls = result[0];
         int cows = result[1];
 
-        // Дописываем строчку в историю
-        String line = "Ход " + moveCount + ": " + guess
-                + " -> Быков: " + bulls + ", Коров: " + cows + "\n";
+        //Добавление хода в историю игры
+        currentGame.addGuess(guess,bulls,cows);
+
+        // Дописываем строчку в историю|Выводим в интерфейс
+        String line = "Ход " + moveCount + ": " + guess + " -> Быков: " + bulls + ", Коров: " + cows + "\n";
         tvHistory.append(line);
 
-        // Очищаем поле для следующей попытки
+        // Чистое поле для следующей попытки
         etGuess.setText("");
 
         // Если угадали всё — победа
         if (bulls == 4) {
             Toast.makeText(this, "Угадали за " + moveCount + " ходов!", Toast.LENGTH_LONG).show();
-            StatsHelper.saveStat(this, moveCount);
+            //StatsHelper.saveStat(this, moveCount);
+            StatsHelper.saveGame(this, currentGame);
             // Автоматически начинаем заново через 10сек
             etGuess.postDelayed(this::startNewGame, 10000);
         }
@@ -95,46 +103,65 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    // === Меню ===
-
+    // Меню
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_stats) {
-            showStats();
+            // Создаем "намерение" открыть StatsActivity
+            Intent intent = new Intent(this, StatsActivity.class);
+            // Запуск нового экрана
+            startActivity(intent);
             return true;
         } else if (item.getItemId() == R.id.action_new_game) {
             startNewGame();
-            Toast.makeText(this, "Новая игра начата", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Новая игра", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showStats() {
-        List<String> stats = StatsHelper.getStats(this);
 
-        if (stats.isEmpty()) {
-            Toast.makeText(this, "Статистика пуста", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        if (item.getItemId() == R.id.action_stats) {
+//            //Уведомление перехода к списку игр
+//            Toast.makeText(this ,"Здесь будет список игр", Toast.LENGTH_SHORT).show();
+//
+//            //showStats();
+//            return true;
+//        } else if (item.getItemId() == R.id.action_new_game) {
+//            startNewGame();
+//            Toast.makeText(this, "Новая игра начата", Toast.LENGTH_SHORT).show();
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
-        // Собираем все записи в один текст
-        StringBuilder sb = new StringBuilder();
-        for (String record : stats) {
-            sb.append(record).append("\n");
-        }
-
-        // Показываем в простом диалоге
-        new AlertDialog.Builder(this)
-                .setTitle("История игр")
-                .setMessage(sb.toString())
-                .setPositiveButton("OK", null)
-                .show();
-    }
+//    private void showStats() {
+//        List<String> stats = StatsHelper.getStats(this);
+//
+//        if (stats.isEmpty()) {
+//            Toast.makeText(this, "Статистика пуста", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        // Собираем все записи в один текст
+//        StringBuilder sb = new StringBuilder();
+//        for (String record : stats) {
+//            sb.append(record).append("\n");
+//        }
+//        // Показываем в диалоге
+//        new AlertDialog.Builder(this)
+//                .setTitle("История игр")
+//                .setMessage(sb.toString())
+//                .setPositiveButton("OK", null)
+//                .show();
+//    }
 }
